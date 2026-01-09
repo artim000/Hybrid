@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Marketplace: LegoDava & Herma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --accent-orange: #ff8c00;
+            --bg-light: #f4f6f8;
+            --text-dark: #333;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--bg-light); color: var(--text-dark); padding-bottom: 60px; }
+
+        /* HEADER */
+        header {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .nav-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* CONTAINER */
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+
+        /* HERO SECTION (Split View) */
+        .hero-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .brand-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: transform 0.2s;
+            border-bottom: 4px solid transparent;
+        }
+        
+        .brand-card:hover { transform: translateY(-3px); }
+
+        .brand-lego { border-color: #d01012; /* Lego Red nuance */ }
+        .brand-herma { border-color: var(--accent-orange); }
+
+        .brand-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+        .brand-lego .brand-icon { color: #d01012; }
+        .brand-herma .brand-icon { color: var(--accent-orange); }
+
+        /* PRODUCT GRID */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-img-placeholder {
+            height: 140px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 3rem;
+        }
+
+        .card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: 1rem; margin-bottom: 5px; font-weight: 600; }
+        .card-price { font-size: 1.1rem; font-weight: bold; color: var(--text-dark); margin-bottom: 10px; }
+        .card-tag { 
+            font-size: 0.7rem; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            display: inline-block; 
+            margin-bottom: 8px;
+            align-self: flex-start;
+        }
+        .tag-lego { background: #ffe6e6; color: #d01012; }
+        .tag-herma { background: #fff4e6; color: var(--accent-orange); }
+
+        .btn-action {
+            margin-top: auto;
+            width: 100%;
+            padding: 8px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+        .btn-action:hover { background: #004494; }
+
+        /* FLOATING ADD BUTTON */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-orange);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(255, 140, 0, 0.4);
+            cursor: pointer;
+            border: none;
+            z-index: 99;
+        }
+
+        /* FORMS & MODALS (Simple View Switching) */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .form-box {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* CHAT */
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header { padding: 15px; border-bottom: 1px solid #eee; background: var(--bg-light); }
+        .chat-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;}
+        .message { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; }
+        .msg-seller { background: #e9ecef; align-self: flex-start; }
+        .msg-user { background: var(--primary-blue); color: white; align-self: flex-end; }
+        .chat-input-area { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 10px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .hero-split { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <i class="fas fa-cubes"></i> HybridMarket
+    </div>
+    <div id="auth-buttons">
+        </div>
+</header>
+
+<main class="container">
+
+    <section id="view-login" class="view-section">
+        <div class="form-box">
+            <h2 style="text-align:center; margin-bottom:20px;">Вхід / Реєстрація</h2>
+            <div class="form-group">
+                <label>Ім'я користувача</label>
+                <input type="text" id="login-username" placeholder="Введіть ваш нікнейм">
+            </div>
+            <button class="btn-submit" onclick="app.login()">Увійти</button>
+        </div>
+    </section>
+
+    <section id="view-home" class="view-section active">
+        <div class="hero-split">
+            <a href="https://t.me/LegoDavaNinjago" target="_blank" class="brand-card brand-lego">
+                <span class="brand-icon"><i class="fas fa-dragon"></i></span>
+                <h3>LegoNinjagoDava</h3>
+                <p style="font-size:0.8rem; color:#666;">Ексклюзивні фігурки та набори</p>
+            </a>
+            <a href="https://t.me/hermabaraholka" target="_blank" class="brand-card brand-herma">
+                <span class="brand-icon"><i class="fas fa-fingerprint"></i></span>
+                <h3>Herma Shop🛍️</h3>
+                <p style="font-size:0.8rem; color:#666;">Барахолка речей та аксесуарів</p>
+            </a>
+        </div>
+
+        <h2 style="margin-bottom:15px;">Свіжі оголошення</h2>
+        <div id="products-container" class="product-grid">
+            </div>
+    </section>
+
+    <section id="view-post" class="view-section">
+        <div class="form-box">
+            <button onclick="app.navigate('home')" style="background:none; border:none; color: #666; cursor:pointer; margin-bottom:10px;">&larr; Назад</button>
+            <h2 style="margin-bottom:20px;">Додати оголошення</h2>
+            <div class="form-group">
+                <label>Назва товару</label>
+                <input type="text" id="post-title">
+            </div>
+            <div class="form-group">
+                <label>Ціна (грн)</label>
+                <input type="number" id="post-price">
+            </div>
+            <div class="form-group">
+                <label>Магазин</label>
+                <select id="post-shop">
+                    <option value="lego">LegoNinjagoDava</option>
+                    <option value="herma">Herma Shop🛍️</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Опис</label>
+                <textarea id="post-desc" rows="3"></textarea>
+            </div>
+            <button class="btn-submit" onclick="app.createAd()">Опублікувати</button>
+            <p id="timer-msg" style="color:red; font-size:0.8rem; margin-top:10px; display:none;"></p>
+        </div>
+    </section>
+
+    <section id="view-chat" class="view-section">
+        <div class="chat-container">
+            <div class="chat-header">
+                <button onclick="app.navigate('home')" style="border:none; background:none; cursor:pointer; margin-right:10px;"><i class="fas fa-arrow-left"></i></button>
+                <span id="chat-item-title" style="font-weight:bold;">Обговорення товару</span>
+            </div>
+            <div id="chat-box" class="chat-messages">
+                </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Напишіть повідомлення...">
+                <button onclick="app.sendMessage()" class="btn-action" style="width:auto; padding:0 20px;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<button id="fab-add" class="fab" onclick="app.tryOpenPost()">
+    <i class="fas fa-plus"></i>
+</button>
+
+<script>
+const app = {
+    data: {
+        user: null,
+        products: [
+            // Mock Data
+            { id: 1, title: 'Lego Zane DX', price: 450, shop: 'lego', desc: 'Рідкісна фігурка' },
+            { id: 2, title: 'Чохол iPhone 13', price: 200, shop: 'herma', desc: 'Силіконовий, новий' },
+            { id: 3, title: 'Золота зброя', price: 120, shop: 'lego', desc: 'Аксесуари для ніндзяго' }
+        ],
+        currentChatProduct: null
+    },
+
+    init: () => {
+        // Load data from LocalStorage if exists
+        const storedUser = localStorage.getItem('hybrid_user');
+        if (storedUser) app.data.user = storedUser;
+
+        const storedProds = localStorage.getItem('hybrid_products');
+        if (storedProds) app.data.products = JSON.parse(storedProds);
+
+        app.renderHeader();
+        app.renderProducts();
+        app.checkView();
+    },
+
+    navigate: (viewId) => {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        
+        // Hide/Show FAB based on view
+        const fab = document.getElementById('fab-add');
+        if (viewId === 'home') fab.style.display = 'flex';
+        else fab.style.display = 'none';
+
+        window.scrollTo(0,0);
+    },
+
+    checkView: () => {
+        // Simple router logic
+        app.navigate('home');
+    },
+
+    renderHeader: () => {
+        const authDiv = document.getElementById('auth-buttons');
+        if (app.data.user) {
+            authDiv.innerHTML = `
+                <span style="margin-right:10px; font-size:0.9rem;">${app.data.user}</span>
+                <button class="nav-btn" onclick="app.logout()">Вихід</button>
+            `;
+        } else {
+            authDiv.innerHTML = `<button class="nav-btn" onclick="app.navigate('login')">Вхід</button>`;
+        }
+    },
+
+    login: () => {
+        const username = document.getElementById('login-username').value;
+        if (!username) return alert('Введіть ім\'я');
+        
+        app.data.user = username;
+        localStorage.setItem('hybrid_user', username);
+        app.renderHeader();
+        app.navigate('home');
+    },
+
+    logout: () => {
+        app.data.user = null;
+        localStorage.removeItem('hybrid_user');
+        app.renderHeader();
+        app.navigate('login');
+    },
+
+    renderProducts: () => {
+        const container = document.getElementById('products-container');
+        container.innerHTML = '';
+
+        app.data.products.forEach(prod => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const shopTag = prod.shop === 'lego' 
+                ? `<span class="card-tag tag-lego">LegoDava</span>` 
+                : `<span class="card-tag tag-herma">HermaShop</span>`;
+
+            const icon = prod.shop === 'lego' ? 'fa-dragon' : 'fa-fingerprint';
+
+            card.innerHTML = `
+                <div class="card-img-placeholder">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="card-body">
+                    ${shopTag}
+                    <div class="card-title">${prod.title}</div>
+                    <div class="card-price">${prod.price} грн</div>
+                    <button class="btn-action" onclick="app.openChat(${prod.id})">Написати продавцю</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    },
+
+    tryOpenPost: () => {
+        if (!app.data.user) {
+            alert('Будь ласка, авторизуйтесь для публікації');
+            app.navigate('login');
+            return;
+        }
+        app.navigate('post');
+        document.getElementById('timer-msg').style.display = 'none';
+    },
+
+    createAd: () => {
+        // Timer Check
+        const lastPost = localStorage.getItem('last_post_time');
+        const now = Date.now();
+        const cooldown = 30 * 60 * 1000; // 30 minutes
+
+        if (lastPost && (now - lastPost < cooldown)) {
+            const minutesLeft = Math.ceil((cooldown - (now - lastPost)) / 60000);
+            const msg = document.getElementById('timer-msg');
+            msg.innerText = `Ліміт часу! Спробуйте через ${minutesLeft} хв.`;
+            msg.style.display = 'block';
+            return;
+        }
+
+        // Gather Data
+        const title = document.getElementById('post-title').value;
+        const price = document.getElementById('post-price').value;
+        const shop = document.getElementById('post-shop').value;
+        const desc = document.getElementById('post-desc').value;
+
+        if (!title || !price) return alert('Заповніть обов\'язкові поля');
+
+        const newProd = {
+            id: Date.now(),
+            title,
+            price,
+            shop,
+            desc
+        };
+
+        app.data.products.unshift(newProd); // Add to beginning
+        localStorage.setItem('hybrid_products', JSON.stringify(app.data.products));
+        
+        // Update Timer
+        localStorage.setItem('last_post_time', now);
+
+        // Reset and Redirect
+        document.getElementById('post-title').value = '';
+        document.getElementById('post-price').value = '';
+        app.renderProducts();
+        app.navigate('home');
+    },
+
+    openChat: (prodId) => {
+        if (!app.data.user) {
+            alert('Авторизуйтесь для чату');
+            app.navigate('login');
+            return;
+        }
+
+        const product = app.data.products.find(p => p.id === prodId);
+        app.data.currentChatProduct = product;
+        
+        document.getElementById('chat-item-title').innerText = `${product.title} (${product.price} грн)`;
+        const chatBox = document.getElementById('chat-box');
+        
+        // Mock initial messages simulating purchase process
+        chatBox.innerHTML = `
+            <div class="message msg-seller">
+                Вітаю! Вас зацікавив товар "${product.title}"?
+                <br><small>${product.shop === 'lego' ? 'LegoDava' : 'HermaShop'}</small>
+            </div>
+        `;
+        
+        app.navigate('chat');
+    },
+
+    sendMessage: () => {
+        const input = document.getElementById('chat-input');
+        const text = input.value;
+        if (!text.trim()) return;
+
+        const chatBox = document.getElementById('chat-box');
+        
+        // User message
+        chatBox.innerHTML += `<div class="message msg-user">${text}</div>`;
+        input.value = '';
+
+        // Auto Scroll
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Mock Reply
+        setTimeout(() => {
+            chatBox.innerHTML += `<div class="message msg-seller">Дякую! Реквізити для оплати надіслано. Очікую скріншот.</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 1500);
+    }
+};
+
+// Start App
+window.onload = app.init;
+</script>
+
+</body>
+</html>
